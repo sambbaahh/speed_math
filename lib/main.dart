@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:speed_math/game.dart';
+import 'package:speed_math/play_session/game_model.dart';
+import 'package:speed_math/play_session/play_session_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,17 +32,8 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-enum Levels { novice, advanced, master }
-
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  Levels currentLevel = Levels.novice;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  Difficulty selectedDifficulty = Difficulty.novice;
 
   @override
   Widget build(BuildContext context) {
@@ -60,23 +52,24 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const Game(),
+                    builder: (context) => Game(difficulty: selectedDifficulty),
                   ),
                 );
               },
               child: const Text("Play"),
             ),
-            SegmentedButton<Levels>(
-              segments: const <ButtonSegment<Levels>>[
-                ButtonSegment(value: Levels.novice, label: Text("Novice")),
-                ButtonSegment(value: Levels.advanced, label: Text("Advanced")),
-                ButtonSegment(value: Levels.master, label: Text("Master")),
+            SegmentedButton<Difficulty>(
+              segments: const <ButtonSegment<Difficulty>>[
+                ButtonSegment(value: Difficulty.novice, label: Text("Novice")),
+                ButtonSegment(
+                    value: Difficulty.advanced, label: Text("Advanced")),
+                ButtonSegment(value: Difficulty.master, label: Text("Master")),
               ],
-              selected: <Levels>{currentLevel},
-              onSelectionChanged: (Set<Levels> newSelection) {
+              selected: <Difficulty>{selectedDifficulty},
+              onSelectionChanged: (Set<Difficulty> newSelection) {
                 setState(
                   () {
-                    currentLevel = newSelection.first;
+                    selectedDifficulty = newSelection.first;
                   },
                 );
               },
