@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text("Speed Math"),
+        title: const Text("Speed Math"),
       ),
       body: Center(
         child: Column(
@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        Game(difficulty: selectedDifficulty, maxLevel: 2),
+                        Game(difficulty: selectedDifficulty, maxLevel: 10),
                   ),
                 );
               },
