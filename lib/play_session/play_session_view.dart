@@ -2,11 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
+import 'package:speed_math/game_end/game_end_view.dart';
 import 'package:speed_math/play_session/game_model.dart';
 
 class Game extends StatefulWidget {
   final Difficulty difficulty;
-  const Game({super.key, required this.difficulty});
+  final int maxLevel;
+  const Game({super.key, required this.difficulty, required this.maxLevel});
 
   @override
   State<Game> createState() => _GameState();
@@ -16,7 +18,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   late AnimationController controller;
   late GameModel gameModel;
 
-  bool isDisabled = false;
+  bool isButtonsDisabled = false;
   int _score = 0;
   int _level = 1;
 
@@ -103,8 +105,6 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       rndFactor = 0.2;
     }
 
-    print(gameModel.rightAnswer);
-
     while (gameModel.allAnswers.length < 4) {
       int minValue = (gameModel.rightAnswer * (1 - rndFactor)).round();
       int maxValue = (gameModel.rightAnswer * (1 + rndFactor)).round();
@@ -120,34 +120,52 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
   }
 
   void checkAnswer(int i) {
-    isDisabled = true;
+    isButtonsDisabled = true;
     controller.stop();
 
     if (i == -1) {
       setState(() {
         _score -= 50;
-        _level++;
       });
     } else if (gameModel.allAnswers[i] == gameModel.rightAnswer) {
       setState(() {
         _score += (100 * (1 - controller.value)).round();
-        _level++;
       });
     } else {
       setState(() {
-        _score -= 50 + (100 * controller.value).round();
-        _level++;
+        if (controller.value < 0.1) {
+          _score -= 100 + (100 * controller.value).round();
+        } else {
+          _score -= 50 + (100 * controller.value).round();
+        }
       });
     }
 
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 1000), () {
       controller.reset();
     });
-    Future.delayed(const Duration(milliseconds: 500), () {
-      initializeGame();
-      isDisabled = false;
-      controller.forward();
-    });
+
+    if (_level == widget.maxLevel) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GameEnd(
+            totalScore: _score,
+            previousDifficulty: widget.difficulty,
+            previousMaxLevel: widget.maxLevel,
+          ),
+        ),
+      );
+    } else {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        setState(() {
+          _level++;
+        });
+        initializeGame();
+        isButtonsDisabled = false;
+        controller.forward();
+      });
+    }
   }
 
   @override
@@ -190,7 +208,8 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
                   itemCount: gameModel.allAnswers.length,
                   itemBuilder: (BuildContext context, int i) {
                     return ElevatedButton(
-                      onPressed: () => isDisabled ? null : checkAnswer(i),
+                      onPressed: () =>
+                          isButtonsDisabled ? null : checkAnswer(i),
                       child: Text(
                         gameModel.allAnswers[i].toString(),
                         style: const TextStyle(fontSize: 30),
