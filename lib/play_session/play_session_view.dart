@@ -12,18 +12,19 @@ class Game extends StatefulWidget {
 }
 
 class _GameState extends State<Game> with TickerProviderStateMixin {
-  late AnimationController controller;
-  late GameModel gameModel;
+  late AnimationController _controller;
+  late GameModel _gameModel;
 
-  bool isButtonsDisabled = false;
+  bool _isButtonsDisabled = false;
   int _score = 0;
   int _level = 1;
+  int _clickedButtonIndex = 0;
 
   @override
   void initState() {
     super.initState();
     initializeGame();
-    controller = AnimationController(
+    _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 10),
     )
@@ -36,41 +37,50 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
         }
       });
     Future.delayed(const Duration(milliseconds: 500), () {
-      controller.forward();
+      _controller.forward();
     });
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   void initializeGame() {
-    gameModel = GameModel(difficulty: widget.difficulty);
-    gameModel.generateMathExpressionAndAnswer();
-    gameModel.generateWrongAnswers();
-    gameModel.allAnswers.shuffle();
+    _gameModel = GameModel(difficulty: widget.difficulty);
+    _gameModel.generateMathExpressionAndAnswer();
+    _gameModel.generateWrongAnswers();
+    _gameModel.allAnswers.shuffle();
   }
 
   void checkAnswer(int i) {
-    isButtonsDisabled = true;
-    controller.stop();
+    setState(() {
+      _isButtonsDisabled = true;
+      _controller.stop();
+      _clickedButtonIndex = i;
+    });
 
-    if (i == -1) {
+    //time over
+    if (_clickedButtonIndex == -1) {
       setState(() {
         _score -= 50;
       });
-    } else if (gameModel.allAnswers[i] == gameModel.rightAnswer) {
+    }
+    //correct answer
+    else if (_gameModel.allAnswers[_clickedButtonIndex] ==
+        _gameModel.rightAnswer) {
       setState(() {
-        _score += (100 * (1 - controller.value)).round();
+        _score += (100 * (1 - _controller.value)).round();
       });
-    } else {
+    }
+    //wrong answer
+    else {
       setState(() {
-        if (controller.value < 0.1) {
-          _score -= 100 + (100 * controller.value).round();
+        if (_controller.value < 0.1) {
+          _score -= 100 + (100 * _controller.value).round();
         } else {
-          _score -= 50 + (100 * controller.value).round();
+          _score -= 50 + (100 * _controller.value).round();
         }
       });
     }
@@ -88,15 +98,42 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
       );
     } else {
       Future.delayed(const Duration(milliseconds: 500), () {
-        controller.reset();
-        setState(() {
-          _level++;
-        });
         initializeGame();
-        isButtonsDisabled = false;
-        controller.forward();
+        setState(() {
+          _controller.reset();
+          _level++;
+          _isButtonsDisabled = false;
+          _controller.forward();
+        });
       });
     }
+  }
+
+  ButtonStyle? changeButtonColor(int i) {
+    //time over
+    if (_clickedButtonIndex == -1) {
+      if (i == _gameModel.allAnswers.indexOf(_gameModel.rightAnswer)) {
+        return ElevatedButton.styleFrom(backgroundColor: Colors.green);
+      } else {
+        return null;
+      }
+    }
+    //correct answer
+    else if (_clickedButtonIndex == i &&
+        _gameModel.allAnswers[_clickedButtonIndex] == _gameModel.rightAnswer) {
+      return ElevatedButton.styleFrom(backgroundColor: Colors.green);
+    }
+    //wrong answer (show the clicked wrong answer and correct answer)
+    else if (_gameModel.allAnswers[_clickedButtonIndex] !=
+        _gameModel.rightAnswer) {
+      if (_clickedButtonIndex == i) {
+        return ElevatedButton.styleFrom(backgroundColor: Colors.red);
+      } else if (i == _gameModel.allAnswers.indexOf(_gameModel.rightAnswer)) {
+        return ElevatedButton.styleFrom(backgroundColor: Colors.green);
+      }
+    }
+
+    return null;
   }
 
   @override
@@ -109,7 +146,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
           child: LinearProgressIndicator(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.black87),
-              value: controller.value),
+              value: _controller.value),
         ),
       ),
       body: Center(
@@ -125,7 +162,7 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
               padding: EdgeInsets.all(10),
             ),
             Text(
-              gameModel.formatMathExpression(),
+              _gameModel.formatMathExpression(),
               style: const TextStyle(fontSize: 30),
             ),
             const Padding(
@@ -134,15 +171,15 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
             Expanded(
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Kaksi saraketta rivillä
-                ),
-                itemCount: gameModel.allAnswers.length,
+                    crossAxisCount: 2),
+                itemCount: _gameModel.allAnswers.length,
                 itemBuilder: (BuildContext context, int i) {
                   return ElevatedButton(
-                    onPressed: () => isButtonsDisabled ? null : checkAnswer(i),
+                    onPressed: () => _isButtonsDisabled ? null : checkAnswer(i),
+                    style: _isButtonsDisabled ? changeButtonColor(i) : null,
                     child: Text(
-                      gameModel.allAnswers[i].toString(),
-                      style: const TextStyle(fontSize: 30),
+                      _gameModel.allAnswers[i].toString(),
+                      style: const TextStyle(fontSize: 38),
                     ),
                   );
                 },
