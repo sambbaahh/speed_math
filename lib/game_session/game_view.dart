@@ -164,8 +164,11 @@ class _GameViewState extends State<GameView> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            const Padding(
+              padding: EdgeInsets.all(5),
+            ),
             Text(
-              "Level ${(_level)}",
+              "Level ${(_level)}/${(widget.maxLevel)}",
               style: const TextStyle(fontSize: 16),
             ),
             const Padding(
@@ -173,23 +176,28 @@ class _GameViewState extends State<GameView> with TickerProviderStateMixin {
             ),
             Text(
               _currentLevel.formatMathExpression(),
-              style: const TextStyle(fontSize: 30),
+              style: const TextStyle(fontSize: 40),
             ),
             const Padding(
-              padding: EdgeInsets.all(80),
+              padding: EdgeInsets.all(75),
             ),
             Expanded(
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2),
                 itemCount: _currentLevel.getAllAnswers().length,
+                padding: const EdgeInsets.all(8),
                 itemBuilder: (BuildContext context, int i) {
-                  return ElevatedButton(
-                    onPressed: () => _isButtonsDisabled ? null : checkAnswer(i),
-                    style: _isButtonsDisabled ? changeButtonColor(i) : null,
-                    child: Text(
-                      _currentLevel.getAllAnswers()[i].toString(),
-                      style: const TextStyle(fontSize: 38),
+                  return Container(
+                    padding: const EdgeInsets.all(6),
+                    child: ElevatedButton(
+                      onPressed: () =>
+                          _isButtonsDisabled ? null : checkAnswer(i),
+                      style: _isButtonsDisabled ? changeButtonColor(i) : null,
+                      child: Text(
+                        _currentLevel.getAllAnswers()[i].toString(),
+                        style: const TextStyle(fontSize: 38),
+                      ),
                     ),
                   );
                 },
