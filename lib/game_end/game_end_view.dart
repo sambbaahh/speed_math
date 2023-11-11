@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:speed_math/main.dart';
 import 'package:speed_math/play_session/game_model.dart';
-import 'package:speed_math/play_session/play_session_view.dart';
+import 'package:speed_math/play_session/game_view.dart';
 
 class GameEnd extends StatelessWidget {
   final int totalScore;
@@ -27,7 +27,7 @@ class GameEnd extends StatelessWidget {
                 Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Game(
+                      builder: (context) => GameView(
                         difficulty: previousDifficulty,
                         maxLevel: previousMaxLevel,
                       ),

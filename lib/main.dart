@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:speed_math/play_session/game_model.dart';
-import 'package:speed_math/play_session/play_session_view.dart';
+import 'package:speed_math/play_session/game_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        Game(difficulty: selectedDifficulty, maxLevel: 10),
+                        GameView(difficulty: selectedDifficulty, maxLevel: 10),
                   ),
                 );
               },
