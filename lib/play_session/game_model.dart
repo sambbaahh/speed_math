@@ -9,13 +9,15 @@ class GameModel {
   late String mathExpression;
   late List<String> operators;
   late int maxNumber;
+  late int minNumber;
   late int rightAnswer;
   late List<int> allAnswers;
 
   GameModel({required this.difficulty}) {
     mathExpression = "";
-    operators = ["+", "-", "*", "/"];
+    operators = _selectOperators(difficulty);
     maxNumber = _selectMaxNumber(difficulty);
+    minNumber = _selectMinNumber(difficulty);
     rightAnswer = 0;
     allAnswers = [];
   }
@@ -27,9 +29,28 @@ class GameModel {
       case Difficulty.advanced:
         return 20;
       case Difficulty.master:
-        return 50;
+        return 40;
       default:
         return 10;
+    }
+  }
+
+  int _selectMinNumber(Difficulty difficulty) {
+    switch (difficulty) {
+      case Difficulty.novice || Difficulty.advanced:
+        return 1;
+      case Difficulty.master:
+        return 5;
+      default:
+        return 1;
+    }
+  }
+
+  List<String> _selectOperators(Difficulty difficulty) {
+    if (difficulty != Difficulty.master) {
+      return ["+", "-", "*"];
+    } else {
+      return ["+", "-", "*", "/"];
     }
   }
 
@@ -39,19 +60,46 @@ class GameModel {
     String tempMathExpression = "";
 
     while (tempRightAnswer < 1) {
-      var startValue = Random().nextInt(maxNumber) + 1;
-      var endValue = Random().nextInt(maxNumber) + 1;
+      var startValue = Random().nextInt(maxNumber) + minNumber;
+      var endValue = Random().nextInt(maxNumber) + minNumber;
       var operator = operators[Random().nextInt(operators.length)];
+      tempMathExpression = "$startValue $operator $endValue";
 
       if (operator == "-" && endValue > startValue) {
         tempMathExpression = "$endValue $operator $startValue";
-      } else {
+      }
+      if (operator == "/" && startValue % endValue != 0) {
+        int changeValue = 0;
+        while (startValue % endValue != 0 && (startValue / endValue) != 1) {
+          changeValue++;
+          if (changeValue > 4) {
+            startValue++;
+            changeValue = 0;
+          } else {
+            endValue = Random().nextInt(startValue) + 1;
+          }
+        }
         tempMathExpression = "$startValue $operator $endValue";
+      }
+      if (difficulty == Difficulty.master &&
+          operator == "*" &&
+          startValue >= 20 &&
+          endValue >= 30) {
+        startValue = startValue - Random().nextInt(startValue - 2) + 1;
+        endValue = endValue - Random().nextInt(endValue - 2) + 1;
+        tempMathExpression = "$endValue $operator $startValue";
+      }
+      if (difficulty == Difficulty.advanced &&
+          operator == "*" &&
+          startValue >= 10 &&
+          endValue >= 10) {
+        startValue = startValue - Random().nextInt(startValue - 2) + 1;
+        endValue = endValue - Random().nextInt(endValue - 2) + 1;
+        tempMathExpression = "$endValue $operator $startValue";
       }
 
       tempRightAnswer = calculateCorrectAnswer(tempMathExpression);
     }
-    if (difficulty == Difficulty.advanced) {}
 
     mathExpression = tempMathExpression;
     rightAnswer = tempRightAnswer;

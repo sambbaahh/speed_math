@@ -86,16 +86,18 @@ class _GameState extends State<Game> with TickerProviderStateMixin {
     }
 
     if (_level == widget.maxLevel) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => GameEnd(
-            totalScore: _score,
-            previousDifficulty: widget.difficulty,
-            previousMaxLevel: widget.maxLevel,
+      Future.delayed(const Duration(milliseconds: 500), () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GameEnd(
+              totalScore: _score,
+              previousDifficulty: widget.difficulty,
+              previousMaxLevel: widget.maxLevel,
+            ),
           ),
-        ),
-      );
+        );
+      });
     } else {
       Future.delayed(const Duration(milliseconds: 500), () {
         initializeGame();
