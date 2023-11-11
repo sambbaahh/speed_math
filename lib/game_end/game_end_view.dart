@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:speed_math/game_session/game_model.dart';
+import 'package:speed_math/game_session/game_view.dart';
 import 'package:speed_math/main.dart';
-import 'package:speed_math/play_session/game_model.dart';
-import 'package:speed_math/play_session/game_view.dart';
 
 class GameEnd extends StatelessWidget {
   final int totalScore;

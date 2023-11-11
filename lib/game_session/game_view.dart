@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:speed_math/game_end/game_end_view.dart';
-import 'package:speed_math/play_session/game_logic.dart';
-import 'package:speed_math/play_session/game_model.dart';
+import 'package:speed_math/game_session/game_logic.dart';
+import 'package:speed_math/game_session/game_model.dart';
 
 class GameView extends StatefulWidget {
   final Difficulty difficulty;
